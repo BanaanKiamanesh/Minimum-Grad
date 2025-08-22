@@ -9,11 +9,37 @@ addpath("../src/")
 tol = 1e-10;
 AssertClose = @(A, B, msg) assert(max(abs(A(:) - B(:))) < tol, msg);
 
+%% Initializers
+
+sz = [3, 4];
+
+T0 = Tensor(sz, [], [], 'Init', 'zero');
+assert(all(T0.Data(:) == 0), 'zero init wrong');
+
+T1 = Tensor(sz, [], [], 'Init', 'one');
+assert(all(T1.Data(:) == 1), 'one init wrong');
+
+sz = [1000, 50];
+Th = Tensor(sz, [], [], 'Init', 'he');
+Tx = Tensor(sz, [], [], 'Init', 'xavier');
+
+FanIn = sz(1);
+STDh = std(Th.Data(:));
+STDx = std(Tx.Data(:));
+Exph = sqrt(2 / FanIn);
+Expx = sqrt(1 / FanIn);
+
+assert(abs(STDh - Exph) < 0.1 * Exph, 'he init std wrong');
+assert(abs(STDx - Expx) < 0.1 * Expx, 'xavier init std wrong');
+
+T2 = Tensor([5, 6], [], [], 'Init', 'one');
+assert(isequal(size(T2.Data), [5, 6]), 'init size wrong');
+
 %% Basic Ops
 % sum
 x = Tensor(rand(2, 3), true);
-s = x.sum();
-s.Backward();
+sz = x.sum();
+sz.Backward();
 
 AssertClose(x.Grad.Data, ones(2, 3), 'sum/backprop failed');
 

@@ -11,12 +11,49 @@ classdef Tensor < handle
     end
 
     methods
-        function obj = Tensor(Data, RequireGrad, DependsOn)
+        function obj = Tensor(Data, RequireGrad, DependsOn, varargin)
             if nargin < 1
                 Data = [];
             end
 
             obj.Data = Tensor.EnsureArray(Data);
+
+            Init = [];
+            if ~isempty(varargin)
+                for i = 1:2:numel(varargin)
+                    if strcmpi(varargin{i}, 'Init')
+                        Init = varargin{i+1};
+                    end
+                end
+            end
+
+            if ~isempty(Init)
+                sz = size(obj.Data);
+                if isempty(obj.Data) || (isvector(Data) && ~isscalar(obj.Data))
+                    s = double(Data(:)).';
+                    if isempty(s)
+                        s = [1 1];
+                    end
+                    if numel(s) == 1
+                        s = [s 1];
+                    end
+                    sz = s;
+                end
+
+                switch lower(Init)
+                    case 'xavier'
+                        obj.Data = Tensor.XavierInit(sz);
+                    case 'he'
+                        obj.Data = Tensor.HeInit(sz);
+                    case 'zero'
+                        obj.Data = Tensor.ZeroInit(sz);
+                    case 'one'
+                        obj.Data = Tensor.OneInit(sz);
+                    otherwise
+                        error('Unknown initializer');
+                end
+            end
+
             if nargin >= 2 && ~isempty(RequireGrad)
                 obj.RequireGrad = logical(RequireGrad);
             end
@@ -231,7 +268,7 @@ classdef Tensor < handle
             for k = 1:numel(T.DependsOn)
                 Dep = T.DependsOn{k};
                 BackGrad = Dep.GradFun(Grad.Data);
-                Dep.Tensor.Backward(Tensor(BackGrad));
+                Dep.Tensor.Backward(BackGrad);
             end
         end
     end
@@ -293,22 +330,57 @@ classdef Tensor < handle
                 DimG = go(i);
                 if DimA == 1 && DimG ~= 1
                     g  = sum(g, i);
-                    sz = size(g);
-                    if numel(sz) < i
-                        sz(end + 1:i) = 1; 
-                    end
-                    
-                    if sz(i) ~= 1
-                        sz(i) = 1;
-                        g = reshape(g, sz);
-                    end
-
+                    g  = reshape(g, [go(1:i-1), 1, go(i+1:end)]);
                     go = size(g);
                     if numel(go) < La
                         go(end + 1:La) = 1;
                     end
                 end
             end
+        end
+
+        function A = XavierInit(Shape)
+            s = double(Shape);
+            if isempty(s)
+                s = [1 1];
+            end
+            if numel(s) == 1
+                s = [s 1];
+            end
+            A = randn(s) .* sqrt(1 ./ s(1));
+        end
+
+        function A = HeInit(Shape)
+            s = double(Shape);
+            if isempty(s)
+                s = [1 1];
+            end
+            if numel(s) == 1
+                s = [s 1];
+            end
+            A = randn(s) .* sqrt(2 ./ s(1));
+        end
+
+        function A = ZeroInit(Shape)
+            s = double(Shape);
+            if isempty(s)
+                s = [1 1];
+            end
+            if numel(s) == 1
+                s = [s 1];
+            end
+            A = zeros(s);
+        end
+
+        function A = OneInit(Shape)
+            s = double(Shape);
+            if isempty(s)
+                s = [1 1];
+            end
+            if numel(s) == 1
+                s = [s 1];
+            end
+            A = ones(s);
         end
 
         function Bigger = SliceBackProp(Grad, FullSize, idx)
