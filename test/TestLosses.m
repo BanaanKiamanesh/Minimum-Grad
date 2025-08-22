@@ -1,6 +1,6 @@
 clear
 close all
-clc
+% clc
 rng(0)
 
 addpath("../src/")
@@ -77,4 +77,4 @@ grad_expect = (P - labels) ./ N;
 
 AssertClose(Z.Grad.Data, grad_expect, 'CCE grad wrt logits wrong');
 
-disp('All Tests Passed!');
+disp('Loss Functions Passed All Tests!');

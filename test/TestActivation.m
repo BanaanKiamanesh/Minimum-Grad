@@ -1,6 +1,6 @@
 clear
 close all
-clc
+% clc
 rng(0)
 
 addpath("../src/Actiavation/")
@@ -98,4 +98,4 @@ end
 
 AssertClose(X.Grad.Data, ExpGrad, 'Softmax explicit grad wrong');
 
-disp('All tests passed!');
+disp('Activation Functions Passed All Tests!');

@@ -1,6 +1,6 @@
 clear
 close all
-clc
+% clc
 rng(0)
 
 addpath("../src/")
@@ -171,4 +171,4 @@ y.Backward();
 
 AssertClose(x.Grad.Data, 2 .* x.Data, 'chain rule 2x failed');
 
-disp('All Tests Passed!');
+disp('Tensor Operations Passed All Tests!');
