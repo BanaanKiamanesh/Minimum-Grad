@@ -9,6 +9,7 @@ tic;
 TestTensor;
 TestLosses;
 TestActivation;
+LinearRegression;
 
 fprintf('\n');
 toc; 
