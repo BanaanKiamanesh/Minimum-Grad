@@ -9,9 +9,6 @@ tic;
 TestTensor;
 TestLosses;
 TestActivation;
-LinearRegression;
-LinearRegressionModel;
-FisherIris;
 
 fprintf('\n');
 toc; 

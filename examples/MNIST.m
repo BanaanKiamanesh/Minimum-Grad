@@ -1,5 +1,7 @@
 clear
 close all
+clc
+
 rng(0)
 
 %% Init Test
