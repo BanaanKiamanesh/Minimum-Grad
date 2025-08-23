@@ -290,55 +290,6 @@ classdef Tensor < handle
             end
         end
 
-        function g = ReduceGrad(Grad, ShapeOriginal)
-            g  = Grad;
-
-            go = size(g);
-            so = ShapeOriginal;
-
-            Lg = numel(go);
-            La = numel(so);
-            
-            DimAdded = max(Lg - La, 0);
-
-            if DimAdded > 0
-                go = size(g);
-                if numel(go) < DimAdded
-                    go(end + 1:DimAdded) = 1; 
-                end
-                
-                LeadProd = prod(go(1:DimAdded));
-                Rest     = go(DimAdded+1:end);
-                
-                if isempty(Rest)
-                    Rest = 1; 
-                end
-                
-                g = reshape(g, [LeadProd, Rest]);
-                g = sum(g, 1);
-                g = reshape(g, [ones(1, DimAdded), Rest]);
-            end
-
-            go = size(g);
-            La = numel(ShapeOriginal);
-            if numel(go) < La
-                go(end + 1:La) = 1; 
-            end
-
-            for i = 1:La
-                DimA = ShapeOriginal(i);
-                DimG = go(i);
-                if DimA == 1 && DimG ~= 1
-                    g  = sum(g, i);
-                    g  = reshape(g, [go(1:i-1), 1, go(i+1:end)]);
-                    go = size(g);
-                    if numel(go) < La
-                        go(end + 1:La) = 1;
-                    end
-                end
-            end
-        end
-
         function A = XavierInit(Shape)
             s = double(Shape);
             if isempty(s)
@@ -386,6 +337,52 @@ classdef Tensor < handle
         function Bigger = SliceBackProp(Grad, FullSize, idx)
             Bigger = zeros(FullSize);
             Bigger(idx{:}) = Grad;
+        end
+    end
+
+    methods (Static, Access = private)
+        function g = ReduceGrad(Grad, ShapeOriginal)
+            g  = Grad;
+            so = double(ShapeOriginal);
+            go = size(g);
+
+            La = numel(so);
+            Lg = numel(go);
+
+            if Lg < La
+                go = [ones(1, La - Lg), go];
+                g  = reshape(g, go);
+                Lg = La;
+            end
+
+            DimAdded = max(Lg - La, 0);
+            if DimAdded > 0
+                go = size(g);
+                LeadProd = prod(go(1:DimAdded));
+                Rest     = go(DimAdded+1:end);
+                if isempty(Rest), Rest = 1; end
+                g = reshape(g, [LeadProd, Rest]);
+                g = sum(g, 1);
+                g = reshape(g, [ones(1, DimAdded), Rest]);
+            end
+
+            go = size(g);
+            if numel(go) < DimAdded + La
+                go(end+1:DimAdded+La) = 1;
+            end
+
+            for i = 1:La
+                dim = DimAdded + i;
+                if so(i) == 1 && go(dim) ~= 1
+                    g  = sum(g, dim);
+                    go = size(g);
+                    if numel(go) < DimAdded + La
+                        go(end+1:DimAdded+La) = 1;
+                    end
+                end
+            end
+
+            g = reshape(g, so);
         end
     end
 end
