@@ -9,6 +9,7 @@ tic;
 TestTensor;
 TestLosses;
 TestActivation;
+TestOptimizers;
 
 fprintf('\n');
 toc; 
