@@ -2,6 +2,10 @@ clear
 close all
 rng(0)
 
+%% Init Test
+tol = 1e-3;
+AssertClose = @(A, B, msg) assert(max(abs(A(:) - B(:))) < tol, msg);
+
 %% Data Generation
 % Actual Coefs
 coef = Tensor(randi(10, [3, 1]));
@@ -19,7 +23,9 @@ b = Tensor(randn(1, 1), true);
 lr = 0.01;              % Learning Weight
 bs = 20;                % Batch Size
 
-for epoch = 1:100
+%% Training Loop
+
+for epoch = 1:150
     EpochLoss = 0;
     for Start = 1:bs:100
         End = Start + bs - 1;
@@ -39,13 +45,8 @@ for epoch = 1:100
     end
 end
 
-fprintf("\n------------------------------------------------\n");
-fprintf("Test on Linear Regression... \n");
+% Validate Learned Parameters
+AssertClose(w.Data, coef.Data, 'Linear regression: learned W is off');
+AssertClose(b.Data, bias.Data, 'Linear regression: learned B is off');
 
-fprintf('Actual w: %s \n', mat2str(coef.Data'));
-fprintf('Estimated w: %s \n', mat2str(round(w.Data', 3)));
-
-fprintf('Actual b: %d \n', bias.Data');
-fprintf('Estimated b: %d \n', round(b.Data', 3));
-
-fprintf("\n------------------------------------------------\n");
+disp('Linear Regression(Simple Implementation) Passed All Tests!')

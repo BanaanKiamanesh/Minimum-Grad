@@ -10,10 +10,12 @@ TestTensor;
 TestLosses;
 TestActivation;
 LinearRegression;
+LinearRegressionModel;
+FisherIris;
 
 fprintf('\n');
 toc; 
 
-%% Clear Mem
+%% Clear Mem and Close Plots
 clear;
-
+close all;
