@@ -3,8 +3,6 @@ close all
 % clc
 rng(0)
 
-addpath("../src/Actiavation/")
-
 %% Init Test
 tol = 1e-10;
 AssertClose = @(A, B, msg) assert(max(abs(A(:) - B(:))) < tol, msg);

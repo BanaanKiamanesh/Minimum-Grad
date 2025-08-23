@@ -3,7 +3,6 @@ close all
 % clc
 rng(0)
 
-addpath("../src/")
 %% Init Test
 
 tol = 1e-10;

@@ -2,6 +2,11 @@ clear
 close all
 clc
 
+addpath("../src/Actiavation/")
+addpath("../src/Layers/")
+addpath("../src/Loss/")
+addpath("../src/Optimizers/")
+
 %% Run All Test Files
 
 tic;

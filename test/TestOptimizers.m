@@ -1,4 +1,3 @@
-% ===== File: test/TestOptimizers.m =====
 clear
 close all
 clc
@@ -8,7 +7,7 @@ rng(0)
 tol = 1e-2;
 AssertClose = @(A, B, msg) assert(max(abs(A(:) - B(:))) < tol, msg);
 
-%% Data Generation (fixed across optimizers)
+%% Data Generation
 N = 256; D = 3;
 coef = Tensor(randi([-5, 5], [D, 1]));
 bias = Tensor(randi([-5, 5], [1, 1]));
